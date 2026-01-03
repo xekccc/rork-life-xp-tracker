@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable, Platform, PanResponder } from 'react-native';
-import { Coffee, Brain, Heart, Sun, BookOpen, Dumbbell, Music, Star, Trash2 } from 'lucide-react-native';
+import { Coffee, Brain, Heart, Sun, BookOpen, Dumbbell, Music, Star, Trash2, Code, Palette, Target, Leaf } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { Moment } from '@/mocks/moments';
@@ -20,13 +20,20 @@ const iconMap = {
   dumbbell: Dumbbell,
   music: Music,
   star: Star,
+  code: Code,
+  palette: Palette,
+  target: Target,
+  leaf: Leaf,
 };
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
   joy: Colors.primary,
   focus: Colors.secondary,
-  connection: '#E91E63',
+  connection: Colors.connection,
   health: Colors.success,
+  discipline: Colors.grit,
+  rest: Colors.serenity,
+  creative: Colors.creation,
 };
 
 const SWIPE_THRESHOLD = 80;

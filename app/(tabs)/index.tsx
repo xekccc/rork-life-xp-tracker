@@ -95,9 +95,6 @@ export default function HomeScreen() {
       const confirmed = window.confirm(`Delete "${momentToDelete.title}"?`);
       if (confirmed) {
         deleteMoment(momentId);
-        if (Platform.OS !== 'web') {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }
       }
     } else {
       Alert.alert(
@@ -124,7 +121,7 @@ export default function HomeScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + 16, paddingBottom: 100 },
+          { paddingTop: insets.top + 16, paddingBottom: 160 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -182,7 +179,7 @@ export default function HomeScreen() {
       <Animated.View
         style={[
           styles.fabContainer,
-          { bottom: insets.bottom + 24 },
+          { bottom: 100 },
         ]}
       >
         <Animated.View

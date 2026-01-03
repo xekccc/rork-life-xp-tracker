@@ -14,4 +14,15 @@ export default {
   white: '#FFFFFF',
   shadowColor: '#000000',
   overlay: 'rgba(108, 92, 231, 0.15)',
+  
+  vitality: '#FF6B4A',
+  wisdom: '#6C5CE7',
+  connection: '#EC4899',
+  creation: '#10B981',
+  grit: '#EF4444',
+  serenity: '#14B8A6',
+  
+  heatmapNone: '#E5E7EB',
+  heatmapLow: '#FFCCC2',
+  heatmapHigh: '#FF6B4A',
 };

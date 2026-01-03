@@ -1,12 +1,33 @@
+export type RPGAttribute = 'vitality' | 'wisdom' | 'connection' | 'creation' | 'grit' | 'serenity';
+
 export interface Moment {
   id: string;
   title: string;
-  icon: 'coffee' | 'brain' | 'heart' | 'sun' | 'book' | 'dumbbell' | 'music' | 'star';
+  icon: 'coffee' | 'brain' | 'heart' | 'sun' | 'book' | 'dumbbell' | 'music' | 'star' | 'code' | 'palette' | 'target' | 'leaf';
   xp: number;
   time: string;
-  category: 'joy' | 'focus' | 'connection' | 'health';
-  duration: number; // Duration in minutes
+  category: 'joy' | 'focus' | 'connection' | 'health' | 'discipline' | 'rest' | 'creative';
+  duration: number;
 }
+
+export const categoryToAttribute: Record<Moment['category'], RPGAttribute> = {
+  health: 'vitality',
+  focus: 'wisdom',
+  connection: 'connection',
+  creative: 'creation',
+  discipline: 'grit',
+  rest: 'serenity',
+  joy: 'vitality',
+};
+
+export const attributeLabels: Record<RPGAttribute, string> = {
+  vitality: 'Vitality',
+  wisdom: 'Wisdom',
+  connection: 'Connection',
+  creation: 'Creation',
+  grit: 'Grit',
+  serenity: 'Serenity',
+};
 
 export const todaysMoments: Moment[] = [
   {
@@ -69,10 +90,12 @@ export const userData = {
   },
 };
 
-// Category default durations in minutes
 export const categoryDefaultDurations: Record<Moment['category'], number> = {
   focus: 30,
   joy: 15,
   connection: 20,
   health: 30,
+  discipline: 45,
+  rest: 20,
+  creative: 40,
 };
