@@ -79,7 +79,16 @@ export function calculateEfficiency(todayXP: number, dailyGoal: number = 1000): 
 export function generateLast30Days(moments: Moment[]): DayXP[] {
   const days: DayXP[] = [];
   const today = new Date();
-  const todayXP = moments.reduce((sum, m) => sum + m.xp, 0);
+  
+  const dayXPMap = new Map<string, number>();
+  moments.forEach((m) => {
+    const momentTimestamp = parseInt(m.id, 10);
+    if (!isNaN(momentTimestamp)) {
+      const momentDate = new Date(momentTimestamp).toDateString();
+      const current = dayXPMap.get(momentDate) || 0;
+      dayXPMap.set(momentDate, current + m.xp);
+    }
+  });
 
   for (let i = 29; i >= 0; i--) {
     const date = new Date(today);
@@ -88,7 +97,7 @@ export function generateLast30Days(moments: Moment[]): DayXP[] {
 
     days.push({
       date: dateStr,
-      xp: i === 0 ? todayXP : Math.floor(Math.random() * 800),
+      xp: dayXPMap.get(dateStr) || 0,
       displayDate: `${date.getMonth() + 1}/${date.getDate()}`,
     });
   }
@@ -102,9 +111,12 @@ export function calculateLifetimeStats(moments: Moment[]): LifetimeStats {
 
   const dayXPMap = new Map<string, number>();
   moments.forEach((m) => {
-    const today = new Date().toDateString();
-    const current = dayXPMap.get(today) || 0;
-    dayXPMap.set(today, current + m.xp);
+    const momentTimestamp = parseInt(m.id, 10);
+    if (!isNaN(momentTimestamp)) {
+      const momentDate = new Date(momentTimestamp).toDateString();
+      const current = dayXPMap.get(momentDate) || 0;
+      dayXPMap.set(momentDate, current + m.xp);
+    }
   });
 
   let bestDay: { date: string; xp: number } | null = null;
@@ -114,13 +126,47 @@ export function calculateLifetimeStats(moments: Moment[]): LifetimeStats {
     }
   });
 
+  const streakDays = calculateStreak(moments);
+
   return {
     totalXP,
     level,
     bestDay,
     totalMoments: moments.length,
-    streakDays: Math.floor(Math.random() * 14) + 1,
+    streakDays,
   };
+}
+
+function calculateStreak(moments: Moment[]): number {
+  if (moments.length === 0) return 0;
+
+  const daysWithMoments = new Set<string>();
+  moments.forEach((m) => {
+    const momentTimestamp = parseInt(m.id, 10);
+    if (!isNaN(momentTimestamp)) {
+      const momentDate = new Date(momentTimestamp).toDateString();
+      daysWithMoments.add(momentDate);
+    }
+  });
+
+  if (daysWithMoments.size === 0) return 0;
+
+  let streak = 0;
+  const today = new Date();
+  
+  for (let i = 0; i < 365; i++) {
+    const checkDate = new Date(today);
+    checkDate.setDate(checkDate.getDate() - i);
+    const dateStr = checkDate.toDateString();
+    
+    if (daysWithMoments.has(dateStr)) {
+      streak++;
+    } else if (i > 0) {
+      break;
+    }
+  }
+
+  return streak;
 }
 
 export function getHeatmapColor(xp: number): string {

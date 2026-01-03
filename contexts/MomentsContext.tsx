@@ -4,36 +4,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Moment, userData as initialUserData } from '@/mocks/moments';
 
 const STORAGE_KEY = 'life_xp_moments';
-const XP_STORAGE_KEY = 'life_xp_current';
 
 export const [MomentsProvider, useMoments] = createContextHook(() => {
   const [moments, setMoments] = useState<Moment[]>([]);
-  const [currentXP, setCurrentXP] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [storedMoments, storedXP] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEY),
-          AsyncStorage.getItem(XP_STORAGE_KEY),
-        ]);
+        const storedMoments = await AsyncStorage.getItem(STORAGE_KEY);
 
         if (storedMoments) {
           setMoments(JSON.parse(storedMoments));
         } else {
           setMoments([]);
         }
-
-        if (storedXP) {
-          setCurrentXP(JSON.parse(storedXP));
-        } else {
-          setCurrentXP(0);
-        }
       } catch (error) {
         console.log('Error loading data:', error);
         setMoments([]);
-        setCurrentXP(0);
       } finally {
         setIsLoaded(true);
       }
@@ -42,6 +30,20 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
     loadData();
   }, []);
 
+  const todaysMoments = useMemo(() => {
+    const today = new Date().toDateString();
+    return moments.filter((m) => {
+      const momentTimestamp = parseInt(m.id, 10);
+      if (isNaN(momentTimestamp)) return false;
+      const momentDate = new Date(momentTimestamp).toDateString();
+      return momentDate === today;
+    });
+  }, [moments]);
+
+  const currentXP = useMemo(() => {
+    return todaysMoments.reduce((sum, m) => sum + m.xp, 0);
+  }, [todaysMoments]);
+
   const timeBreakdown = useMemo(() => {
     const now = new Date();
     const minutesPassed = now.getHours() * 60 + now.getMinutes();
@@ -49,7 +51,7 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
     let focusMinutes = 0;
     let joyMinutes = 0;
     
-    moments.forEach(moment => {
+    todaysMoments.forEach(moment => {
       const duration = moment.duration || 15;
       if (moment.category === 'focus') {
         focusMinutes += duration;
@@ -72,7 +74,7 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
     const rest = Math.max(0, 100 - focus - joy);
     
     return { focus, joy, rest };
-  }, [moments]);
+  }, [todaysMoments]);
 
   const hoursLeft = useMemo(() => {
     const now = new Date();
@@ -99,21 +101,12 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
       AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
-    setCurrentXP(prev => {
-      const updated = prev + moment.xp;
-      AsyncStorage.setItem(XP_STORAGE_KEY, JSON.stringify(updated));
-      return updated;
-    });
   }, []);
 
   const clearAllData = useCallback(async () => {
     try {
-      await Promise.all([
-        AsyncStorage.removeItem(STORAGE_KEY),
-        AsyncStorage.removeItem(XP_STORAGE_KEY),
-      ]);
+      await AsyncStorage.removeItem(STORAGE_KEY);
       setMoments([]);
-      setCurrentXP(0);
       console.log('All data cleared');
     } catch (error) {
       console.log('Error clearing data:', error);
@@ -122,18 +115,8 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
 
   const deleteMoment = useCallback((momentId: string) => {
     setMoments(prev => {
-      const momentToDelete = prev.find(m => m.id === momentId);
-      if (!momentToDelete) return prev;
-
       const updated = prev.filter(m => m.id !== momentId);
       AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-
-      setCurrentXP(xp => {
-        const updatedXP = xp - momentToDelete.xp;
-        AsyncStorage.setItem(XP_STORAGE_KEY, JSON.stringify(updatedXP));
-        return updatedXP;
-      });
-
       return updated;
     });
   }, []);
