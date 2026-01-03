@@ -23,6 +23,10 @@ import {
   Music,
   Star,
   Check,
+  Target,
+  Leaf,
+  Palette,
+  Code,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -31,10 +35,12 @@ import type { Moment } from '@/mocks/moments';
 import { categoryDefaultDurations } from '@/mocks/moments';
 
 const categories = [
-  { id: 'joy', label: 'Joy & Action', color: Colors.primary, icon: Sun },
-  { id: 'focus', label: 'Deep Focus', color: Colors.secondary, icon: Brain },
-  { id: 'connection', label: 'Connection', color: '#E91E63', icon: Heart },
-  { id: 'health', label: 'Health', color: Colors.success, icon: Dumbbell },
+  { id: 'health', label: 'Vitality', color: Colors.vitality, icon: Dumbbell },
+  { id: 'focus', label: 'Wisdom', color: Colors.wisdom, icon: Brain },
+  { id: 'connection', label: 'Connection', color: Colors.connection, icon: Heart },
+  { id: 'creative', label: 'Creation', color: Colors.creation, icon: Palette },
+  { id: 'discipline', label: 'Grit', color: Colors.grit, icon: Target },
+  { id: 'rest', label: 'Serenity', color: Colors.serenity, icon: Leaf },
 ];
 
 const iconOptions = [
@@ -46,6 +52,10 @@ const iconOptions = [
   { id: 'dumbbell', icon: Dumbbell, label: 'Exercise' },
   { id: 'music', icon: Music, label: 'Music' },
   { id: 'star', icon: Star, label: 'Special' },
+  { id: 'code', icon: Code, label: 'Coding' },
+  { id: 'palette', icon: Palette, label: 'Art' },
+  { id: 'target', icon: Target, label: 'Goal' },
+  { id: 'leaf', icon: Leaf, label: 'Nature' },
 ];
 
 const xpOptions = [15, 25, 50, 75, 100, 150];
@@ -64,11 +74,11 @@ export default function AddMomentScreen() {
   const router = useRouter();
   
   const [title, setTitle] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Moment['category']>('joy');
+  const [selectedCategory, setSelectedCategory] = useState<Moment['category']>('health');
   const [selectedIcon, setSelectedIcon] = useState<Moment['icon']>('coffee');
   const [selectedXP, setSelectedXP] = useState(25);
   const [selectedDuration, setSelectedDuration] = useState<number>(
-    categoryDefaultDurations['joy']
+    categoryDefaultDurations['health']
   );
   
   const { addMoment } = useMoments();
@@ -386,24 +396,25 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   categoryItem: {
-    width: '47%',
+    width: '31%',
     backgroundColor: Colors.card,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 12,
     alignItems: 'center',
     position: 'relative',
   },
   categoryIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   categoryLabel: {
-    fontSize: 13,
+    fontSize: 11,
     color: Colors.textSecondary,
+    textAlign: 'center' as const,
   },
   checkBadge: {
     position: 'absolute',
