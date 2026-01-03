@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import createContextHook from '@nkzw/create-context-hook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Moment, todaysMoments as initialMoments, userData as initialUserData } from '@/mocks/moments';
+import { Moment, userData as initialUserData } from '@/mocks/moments';
 
 const STORAGE_KEY = 'life_xp_moments';
 const XP_STORAGE_KEY = 'life_xp_current';
@@ -22,20 +22,18 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
         if (storedMoments) {
           setMoments(JSON.parse(storedMoments));
         } else {
-          setMoments(initialMoments);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initialMoments));
+          setMoments([]);
         }
 
         if (storedXP) {
           setCurrentXP(JSON.parse(storedXP));
         } else {
-          setCurrentXP(initialUserData.todayXP);
-          await AsyncStorage.setItem(XP_STORAGE_KEY, JSON.stringify(initialUserData.todayXP));
+          setCurrentXP(0);
         }
       } catch (error) {
         console.log('Error loading data:', error);
-        setMoments(initialMoments);
-        setCurrentXP(initialUserData.todayXP);
+        setMoments([]);
+        setCurrentXP(0);
       } finally {
         setIsLoaded(true);
       }
@@ -108,6 +106,20 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
     });
   }, []);
 
+  const clearAllData = useCallback(async () => {
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem(STORAGE_KEY),
+        AsyncStorage.removeItem(XP_STORAGE_KEY),
+      ]);
+      setMoments([]);
+      setCurrentXP(0);
+      console.log('All data cleared');
+    } catch (error) {
+      console.log('Error clearing data:', error);
+    }
+  }, []);
+
   const deleteMoment = useCallback((momentId: string) => {
     setMoments(prev => {
       const momentToDelete = prev.find(m => m.id === momentId);
@@ -131,6 +143,7 @@ export const [MomentsProvider, useMoments] = createContextHook(() => {
     currentXP,
     addMoment,
     deleteMoment,
+    clearAllData,
     userData: initialUserData,
     isLoaded,
     timeBreakdown,
